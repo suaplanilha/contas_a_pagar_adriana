@@ -2,7 +2,7 @@
 <div class="page">
   <h2>Contas a Pagar</h2>
   
-  <button type="button" onclick="mostrarFormulario()">Adicionar Conta</button>
+  <button type="button" onclick="document.getElementById('formulario').style.display = 'block'">Adicionar Conta</button>
   
   <div id="formulario" class="formulario" style="display: none;">
     <h3>Nova Conta a Pagar</h3>
@@ -32,6 +32,7 @@
       <input type="text" id="id" name="id" required>
 
       <button type="submit">Salvar</button>
+      <button type="button" onclick="document.getElementById('formulario').style.display = 'none'">Cancelar</button>
     </form>
   </div>
   

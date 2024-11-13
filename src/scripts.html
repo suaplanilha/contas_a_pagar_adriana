@@ -1,0 +1,216 @@
+<!-- src/scripts.html -->
+<script>
+  // Scripts principais para a SPA
+
+  /**
+   * Exibe feedbacks visuais ao usuário.
+   *
+   * @param {string} message - Mensagem a ser exibida.
+   * @param {string} type - Tipo de feedback ('success', 'error', 'info').
+   */
+  function showFeedback(message, type) {
+    const feedbackDiv = document.getElementById('feedback');
+    feedbackDiv.className = `feedback ${type}`;
+    feedbackDiv.textContent = message;
+    feedbackDiv.style.display = 'block';
+    setTimeout(() => {
+      feedbackDiv.style.display = 'none';
+    }, 3000);
+  }
+
+  /**
+   * Carrega uma página HTML específica dentro do conteúdo principal.
+   *
+   * @param {string} page - Nome da página a ser carregada.
+   */
+  function loadPage(page) {
+    showFeedback(`Carregando ${page}...`, 'info');
+    google.script.run.withSuccessHandler(function(html) {
+      const contentDiv = document.getElementById('content');
+      if (contentDiv) {
+        contentDiv.innerHTML = html;
+        initializePage(page);
+        showFeedback(`${page} carregada com sucesso!`, 'success');
+      } else {
+        showFeedback("Elemento 'content' não encontrado.", 'error');
+      }
+    }).withFailureHandler(function(error) {
+      showFeedback(`Erro ao carregar a página: ${error.message}`, 'error');
+    }).getPage(page);
+  }
+
+  /**
+   * Inicializa as funcionalidades específicas da página carregada.
+   *
+   * @param {string} page - Nome da página.
+   */
+  function initializePage(page) {
+    switch(page) {
+      case 'contas_a_pagar':
+        initializeContasAPagar();
+        break;
+      case 'contas_a_receber':
+        initializeContasAReceber();
+        break;
+      case 'ferias':
+        initializeFerias();
+        break;
+      default:
+        console.error(`Página ${page} não reconhecida.`);
+    }
+  }
+
+  /**
+   * Inicializa os event listeners para a página Contas a Pagar.
+   */
+  function initializeContasAPagar() {
+    const form = document.getElementById('formContaAPagar');
+    if (form) {
+      form.addEventListener('submit', handleSubmitContasAPagar);
+    } else {
+      console.error("Elemento 'formContaAPagar' não encontrado.");
+    }
+
+    carregarContasAPagar();
+  }
+
+  /**
+   * Manipula a submissão do formulário Contas a Pagar.
+   *
+   * @param {Event} e - Evento de submissão.
+   */
+  function handleSubmitContasAPagar(e) {
+    e.preventDefault();
+    const form = e.target;
+
+    const conta = {
+      tipo: form.tipo.value.trim(),
+      banco: form.banco.value.trim(),
+      data: form.data.value,
+      valor: parseFloat(form.valor.value),
+      controle_pagamento: form.controle_pagamento.value.trim(),
+      vencimento: form.vencimento.value,
+      alertas: form.alertas.value.trim(),
+      id: form.id.value.trim()
+    };
+
+    // Validação dos campos
+    if (!conta.tipo || !conta.banco || !conta.data || isNaN(conta.valor) ||
+        !conta.controle_pagamento || !conta.vencimento || !conta.id) {
+      showFeedback("Por favor, preencha todos os campos obrigatórios.", 'error');
+      return;
+    }
+
+    if (conta.id.includes('/') || conta.id.includes('\\')) {
+      showFeedback("O ID não pode conter barras ou caracteres especiais.", 'error');
+      return;
+    }
+
+    showFeedback("Salvando conta...", 'info');
+    google.script.run.withSuccessHandler(function(response) {
+      if (response.success) {
+        showFeedback(response.message, 'success');
+        form.reset();
+        document.getElementById('formulario').style.display = 'none';
+        carregarContasAPagar();
+      } else {
+        showFeedback(`Erro: ${response.message}`, 'error');
+      }
+    }).withFailureHandler(function(error) {
+      showFeedback(`Erro ao salvar a conta: ${error.message}`, 'error');
+    }).adicionarContaAPagar(conta);
+  }
+
+  /**
+   * Carrega e exibe a lista de contas a pagar na tabela.
+   */
+  function carregarContasAPagar() {
+    showFeedback("Carregando contas a pagar...", 'info');
+    google.script.run.withSuccessHandler(function(data) {
+      const lista = document.getElementById('listaContas');
+      if (lista) {
+        if (data.length === 0) {
+          lista.innerHTML = '<p>Nenhuma conta a pagar encontrada.</p>';
+          showFeedback("Nenhuma conta a pagar encontrada.", 'info');
+          return;
+        }
+
+        let html = '<table>';
+        html += '<tr><th>ID</th><th>Alertas</th><th>Vencimento</th><th>Controle de Pagamento</th><th>Valor</th><th>Data</th><th>Banco</th><th>Tipo</th><th>Ações</th></tr>';
+        data.forEach(row => {
+          html += `<tr>
+                    <td>${row[0]}</td>
+                    <td>${row[1]}</td>
+                    <td>${row[2]}</td>
+                    <td>R$ ${parseFloat(row[4]).toFixed(2)}</td>
+                    <td>${row[3]}</td>
+                    <td>${row[5]}</td>
+                    <td>${row[6]}</td>
+                    <td>${row[7]}</td>
+                    <td>
+                      <button onclick="editarConta('${row[0]}')">Editar</button>
+                      <button onclick="excluirConta('${row[0]}')">Excluir</button>
+                    </td>
+                   </tr>`;
+        });
+        html += '</table>';
+        lista.innerHTML = html;
+        showFeedback("Tabela de contas a pagar atualizada.", 'success');
+      } else {
+        showFeedback("Elemento 'listaContas' não encontrado.", 'error');
+      }
+    }).withFailureHandler(function(error) {
+      showFeedback(`Erro ao carregar contas a pagar: ${error.message}`, 'error');
+    }).getContasAPagar();
+  }
+
+  /**
+   * Edita uma conta a pagar.
+   *
+   * @param {string} id - ID da conta a pagar.
+   */
+  function editarConta(id) {
+    // Implementar lógica de edição
+    showFeedback(`Editar conta ${id} - em desenvolvimento.`, 'info');
+  }
+
+  /**
+   * Exclui uma conta a pagar.
+   *
+   * @param {string} id - ID da conta a pagar.
+   */
+  function excluirConta(id) {
+    if (!confirm(`Tem certeza que deseja excluir a conta ${id}?`)) return;
+
+    showFeedback(`Excluindo conta ${id}...`, 'info');
+    google.script.run.withSuccessHandler(function(response) {
+      if (response.success) {
+        showFeedback(response.message, 'success');
+        carregarContasAPagar();
+      } else {
+        showFeedback(`Erro: ${response.message}`, 'error');
+      }
+    }).withFailureHandler(function(error) {
+      showFeedback(`Erro ao excluir a conta: ${error.message}`, 'error');
+    }).excluirContaAPagar(id);
+  }
+
+  // Inicializar a aplicação após o carregamento da página
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuLinks = document.querySelectorAll('.menu a');
+    menuLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const page = this.getAttribute('data-page');
+        loadPage(page);
+      });
+    });
+
+    // Carregar a página inicial
+    loadPage('contas_a_pagar');
+  });
+
+  // Funções para Contas a Receber e Férias serão adicionadas aqui seguindo a mesma lógica
+</script>
+
+   
