@@ -1,0 +1,133 @@
+
+<style>
+:root {
+  --primary-color: #4A90E2;
+  --secondary-color: #50E3C2;
+  --background-color: #F5F7FA;
+  --text-color: #333333;
+  --font-size-base: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+}
+
+header, footer {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  padding: 1rem;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+nav {
+  background-color: #ffffff;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.menu li a:hover, .menu li a:focus {
+  color: var(--secondary-color);
+  outline: none;
+}
+
+#content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.formulario {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+}
+
+.formulario form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formulario label {
+  grid-column: 1 / 2;
+}
+
+.formulario input, .formulario button {
+  grid-column: 2 / 3;
+  padding: 0.5rem;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+}
+
+.formulario button {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+.formulario button:hover, .formulario button:focus {
+  background-color: var(--secondary-color);
+  outline: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table, th, td {
+  border: 1px solid #dddddd;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .menu {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .formulario form {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario label, .formulario input, .formulario button {
+    grid-column: 1 / 2;
+  }
+}
+</style>

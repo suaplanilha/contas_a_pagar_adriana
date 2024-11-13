@@ -1,0 +1,31 @@
+<!-- src/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Adriana</title>
+ 
+</head>
+<body>
+  <?!= include('header'); ?>
+   <?!= include('styles'); ?>
+
+  <div class="container">
+    <nav>
+      <ul class="menu">
+        <li><a href="#" onclick="loadPage('contas_a_pagar')">Contas a Pagar</a></li>
+        <li><a href="#" onclick="loadPage('contas_a_receber')">Contas a Receber</a></li>
+        <li><a href="#" onclick="loadPage('controle_de_ferias')">Controle de Férias</a></li>
+      </ul>
+    </nav>
+
+    <div id="content">
+      <!-- Conteúdo das páginas será carregado aqui -->
+    </div>
+  </div>
+
+  <?!= include('footer'); ?>
+<?!= include('scripts'); ?>
+ 
+</body>
+</html>
