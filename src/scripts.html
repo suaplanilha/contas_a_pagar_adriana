@@ -81,6 +81,7 @@
    */
   function handleSubmitContasAPagar(e) {
     e.preventDefault();
+    console.log("Submetendo formulário Contas a Pagar.");
     const form = e.target;
 
     const conta = {
@@ -108,6 +109,7 @@
 
     showFeedback("Salvando conta...", 'info');
     google.script.run.withSuccessHandler(function(response) {
+      console.log("Resposta do servidor ao adicionar conta a pagar:", response);
       if (response.success) {
         showFeedback(response.message, 'success');
         form.reset();
@@ -117,6 +119,7 @@
         showFeedback(`Erro: ${response.message}`, 'error');
       }
     }).withFailureHandler(function(error) {
+      console.error("Erro ao adicionar conta a pagar:", error);
       showFeedback(`Erro ao salvar a conta: ${error.message}`, 'error');
     }).adicionarContaAPagar(conta);
   }
@@ -125,8 +128,10 @@
    * Carrega e exibe a lista de contas a pagar na tabela.
    */
   function carregarContasAPagar() {
+    console.log("Iniciando carregarContasAPagar.");
     showFeedback("Carregando contas a pagar...", 'info');
     google.script.run.withSuccessHandler(function(data) {
+      console.log("Sucesso ao carregar contas a pagar:", data);
       const lista = document.getElementById('listaContas');
       if (lista) {
         if (data.length === 0) {
@@ -160,6 +165,7 @@
         showFeedback("Elemento 'listaContas' não encontrado.", 'error');
       }
     }).withFailureHandler(function(error) {
+      console.error("Erro ao carregar contas a pagar:", error);
       showFeedback(`Erro ao carregar contas a pagar: ${error.message}`, 'error');
     }).getContasAPagar();
   }
@@ -195,6 +201,220 @@
     }).excluirContaAPagar(id);
   }
 
+  /**
+   * Inicializa as funcionalidades específicas da página Contas a Receber.
+   */
+  function initializeContasAReceber() {
+    console.log("Inicializando Contas a Receber.");
+    const form = document.getElementById('formContaAReceber');
+    if (form) {
+      form.addEventListener('submit', handleSubmitContasAReceber);
+    } else {
+      console.error("Elemento 'formContaAReceber' não encontrado.");
+    }
+
+    carregarContasAReceber();
+  }
+
+  /**
+   * Manipula a submissão do formulário Contas a Receber.
+   *
+   * @param {Event} e - Evento de submissão.
+   */
+  function handleSubmitContasAReceber(e) {
+    e.preventDefault();
+    console.log("Submetendo formulário Contas a Receber.");
+    const form = e.target;
+
+    const conta = {
+      tipo: form.tipo.value.trim(),
+      cliente: form.cliente.value.trim(),
+      data: form.data.value,
+      valor: parseFloat(form.valor.value),
+      controle_pagamento: form.controle_pagamento.value.trim(),
+      vencimento: form.vencimento.value,
+      alertas: form.alertas.value.trim(),
+      id: form.id.value.trim()
+    };
+
+    // Validação dos campos
+    if (!conta.tipo || !conta.cliente || !conta.data || isNaN(conta.valor) ||
+        !conta.controle_pagamento || !conta.vencimento || !conta.id) {
+      showFeedback("Por favor, preencha todos os campos obrigatórios.", 'error');
+      return;
+    }
+
+    if (conta.id.includes('/') || conta.id.includes('\\')) {
+      showFeedback("O ID não pode conter barras ou caracteres especiais.", 'error');
+      return;
+    }
+
+    showFeedback("Salvando conta...", 'info');
+    google.script.run.withSuccessHandler(function(response) {
+      console.log("Resposta do servidor ao adicionar conta a receber:", response);
+      if (response.success) {
+        showFeedback(response.message, 'success');
+        form.reset();
+        document.getElementById('formulario').style.display = 'none';
+        carregarContasAReceber();
+      } else {
+        showFeedback(`Erro: ${response.message}`, 'error');
+      }
+    }).withFailureHandler(function(error) {
+      console.error("Erro ao adicionar conta a receber:", error);
+      showFeedback(`Erro ao salvar a conta: ${error.message}`, 'error');
+    }).adicionarContaAReceber(conta);
+  }
+
+  /**
+   * Carrega e exibe a lista de contas a receber na tabela.
+   */
+  function carregarContasAReceber() {
+    console.log("Iniciando carregarContasAReceber.");
+    showFeedback("Carregando contas a receber...", 'info');
+    google.script.run.withSuccessHandler(function(data) {
+      console.log("Sucesso ao carregar contas a receber:", data);
+      const lista = document.getElementById('listaContasAReceber');
+      if (lista) {
+        if (data.length === 0) {
+          lista.innerHTML = '<p>Nenhuma conta a receber encontrada.</p>';
+          showFeedback("Nenhuma conta a receber encontrada.", 'info');
+          return;
+        }
+
+        let html = '<table>';
+        html += '<tr><th>ID</th><th>Cliente</th><th>Vencimento</th><th>Controle de Pagamento</th><th>Valor</th><th>Data</th><th>Tipo</th><th>Ações</th></tr>';
+        data.forEach(row => {
+          html += `<tr>
+                    <td>${row[0]}</td>
+                    <td>${row[1]}</td>
+                    <td>${row[2]}</td>
+                    <td>${row[3]}</td>
+                    <td>R$ ${parseFloat(row[4]).toFixed(2)}</td>
+                    <td>${row[5]}</td>
+                    <td>${row[6]}</td>
+                    <td>
+                      <button onclick="editarConta('${row[0]}')">Editar</button>
+                      <button onclick="excluirConta('${row[0]}')">Excluir</button>
+                    </td>
+                   </tr>`;
+        });
+        html += '</table>';
+        lista.innerHTML = html;
+        showFeedback("Tabela de contas a receber atualizada.", 'success');
+      } else {
+        showFeedback("Elemento 'listaContasAReceber' não encontrado.", 'error');
+      }
+    }).withFailureHandler(function(error) {
+      console.error("Erro ao carregar contas a receber:", error);
+      showFeedback(`Erro ao carregar contas a receber: ${error.message}`, 'error');
+    }).getContasAReceber();
+  }
+
+  /**
+   * Inicializa as funcionalidades específicas da página Controle de Férias.
+   */
+  function initializeFerias() {
+    console.log("Inicializando Controle de Férias.");
+    const form = document.getElementById('formFerias');
+    if (form) {
+      form.addEventListener('submit', handleSubmitFerias);
+    } else {
+      console.error("Elemento 'formFerias' não encontrado.");
+    }
+
+    carregarFerias();
+  }
+
+  /**
+   * Manipula a submissão do formulário Controle de Férias.
+   *
+   * @param {Event} e - Evento de submissão.
+   */
+  function handleSubmitFerias(e) {
+    e.preventDefault();
+    console.log("Submetendo formulário Controle de Férias.");
+    const form = e.target;
+
+    const ferias = {
+      nome: form.nome.value.trim(),
+      data_inicio: form.data_inicio.value,
+      data_fim: form.data_fim.value,
+      tipo: form.tipo.value.trim(),
+      id: form.id.value.trim()
+    };
+
+    // Validação dos campos
+    if (!ferias.nome || !ferias.data_inicio || !ferias.data_fim || !ferias.tipo || !ferias.id) {
+      showFeedback("Por favor, preencha todos os campos obrigatórios.", 'error');
+      return;
+    }
+
+    if (ferias.id.includes('/') || ferias.id.includes('\\')) {
+      showFeedback("O ID não pode conter barras ou caracteres especiais.", 'error');
+      return;
+    }
+
+    showFeedback("Salvando férias...", 'info');
+    google.script.run.withSuccessHandler(function(response) {
+      console.log("Resposta do servidor ao adicionar férias:", response);
+      if (response.success) {
+        showFeedback(response.message, 'success');
+        form.reset();
+        document.getElementById('formularioFerias').style.display = 'none';
+        carregarFerias();
+      } else {
+        showFeedback(`Erro: ${response.message}`, 'error');
+      }
+    }).withFailureHandler(function(error) {
+      console.error("Erro ao adicionar férias:", error);
+      showFeedback(`Erro ao salvar as férias: ${error.message}`, 'error');
+    }).adicionarFerias(ferias);
+  }
+
+  /**
+   * Carrega e exibe a lista de férias na tabela.
+   */
+  function carregarFerias() {
+    console.log("Iniciando carregarFerias.");
+    showFeedback("Carregando férias...", 'info');
+    google.script.run.withSuccessHandler(function(data) {
+      console.log("Sucesso ao carregar férias:", data);
+      const lista = document.getElementById('listaFerias');
+      if (lista) {
+        if (data.length === 0) {
+          lista.innerHTML = '<p>Nenhuma férias encontrada.</p>';
+          showFeedback("Nenhuma férias encontrada.", 'info');
+          return;
+        }
+
+        let html = '<table>';
+        html += '<tr><th>ID</th><th>Nome</th><th>Data Início</th><th>Data Fim</th><th>Tipo</th><th>Ações</th></tr>';
+        data.forEach(row => {
+          html += `<tr>
+                    <td>${row[0]}</td>
+                    <td>${row[1]}</td>
+                    <td>${row[2]}</td>
+                    <td>${row[3]}</td>
+                    <td>${row[4]}</td>
+                    <td>
+                      <button onclick="editarFerias('${row[0]}')">Editar</button>
+                      <button onclick="excluirFerias('${row[0]}')">Excluir</button>
+                    </td>
+                   </tr>`;
+        });
+        html += '</table>';
+        lista.innerHTML = html;
+        showFeedback("Tabela de férias atualizada.", 'success');
+      } else {
+        showFeedback("Elemento 'listaFerias' não encontrado.", 'error');
+      }
+    }).withFailureHandler(function(error) {
+      console.error("Erro ao carregar férias:", error);
+      showFeedback(`Erro ao carregar férias: ${error.message}`, 'error');
+    }).getFerias();
+  }
+
   // Inicializar a aplicação após o carregamento da página
   document.addEventListener('DOMContentLoaded', function() {
     const menuLinks = document.querySelectorAll('.menu a');
@@ -213,4 +433,3 @@
   // Funções para Contas a Receber e Férias serão adicionadas aqui seguindo a mesma lógica
 </script>
 
-   

@@ -359,35 +359,7 @@ function excluirFerias(id) {
  * Atualiza uma férias existente.
  *
  * @param {Object} ferias - Objeto contendo os dados atualizados das férias.
-
-    if (!sheet) {
-      throw new Error("A aba 'Ferias' não foi encontrada na planilha.");
-
-  } catch (error) {
-    Logger.log(`Erro na função atualizarFerias: ${error.message}`);
-    return { success: false, message: error.message };
-  }
-}
-
-    const rowIndex = data.findIndex(row => row[0] === ferias.id);
-
-    Logger.log("Férias atualizadas com sucesso.");
-    return { success: true, message: 'Férias atualizadas com sucesso!' };
-      ferias.data_fim,
-      ferias.tipo
-    ]]);
-    sheet.getRange(rowIndex + 1, 2, 1, 4).setValues([[
-      ferias.nome,
-      ferias.data_inicio,
-
-      throw new Error('Férias não encontradas.');
-    }
-
-    // Atualizar os dados na planilha
-    if (rowIndex === -1) {
-
-    const data = sheet.getDataRange().getValues();
-    }
+ * @param {string} tipo - Tipo da conta ('ferias').
  * @returns {Object} Resposta indicando sucesso ou erro.
  */
 function atualizarFerias(ferias) {
@@ -422,5 +394,101 @@ function atualizarFerias(ferias) {
   } catch (error) {
     Logger.log(`Erro na função atualizarFerias: ${error.message}`);
     return { success: false, message: error.message };
+  }
+}
+
+/**
+ * Recupera todas as contas a pagar.
+ *
+ * @returns {Array} Dados das contas a pagar.
+ */
+function getContasAPagar() {
+  Logger.log("Função getContasAPagar iniciada.");
+  try {
+    const contas = getContas('contas_a_pagar');
+    Logger.log("Contas a pagar recuperadas com sucesso.");
+    return contas;
+  } catch (error) {
+    Logger.log(`Erro na função getContasAPagar: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
+ * Adiciona uma nova conta a pagar.
+ *
+ * @param {Object} conta - Objeto contendo os dados da conta.
+ * @returns {Object} Resposta indicando sucesso ou erro.
+ */
+function adicionarContaAPagar(conta) {
+  Logger.log("Função adicionarContaAPagar iniciada.");
+  try {
+    const resposta = adicionarConta(conta, 'contas_a_pagar');
+    Logger.log("Conta a pagar adicionada com sucesso.");
+    return resposta;
+  } catch (error) {
+    Logger.log(`Erro na função adicionarContaAPagar: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
+ * Inicializa as funcionalidades específicas para Contas a Receber.
+ */
+function initializeContasAReceber() {
+  const form = document.getElementById('formContaAReceber');
+  if (form) {
+    form.addEventListener('submit', handleSubmitContasAReceber);
+  } else {
+    console.error("Elemento 'formContaAReceber' não encontrado.");
+  }
+
+  carregarContasAReceber();
+}
+
+/**
+ * Manipula a submissão do formulário Contas a Receber.
+ *
+ * @param {Event} e - Evento de submissão.
+ */
+function handleSubmitContasAReceber(e) {
+  e.preventDefault();
+  Logger.log("Submetendo formulário Contas a Receber.");
+  // Implementar lógica similar a handleSubmitContasAPagar
+  // ...
+}
+
+/**
+ * Recupera todas as contas a receber.
+ *
+ * @returns {Array} Dados das contas a receber.
+ */
+function getContasAReceber() {
+  Logger.log("Função getContasAReceber iniciada.");
+  try {
+    const contas = getContas('contas_a_receber');
+    Logger.log("Contas a receber recuperadas com sucesso.");
+    return contas;
+  } catch (error) {
+    Logger.log(`Erro na função getContasAReceber: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
+ * Adiciona uma nova conta a receber.
+ *
+ * @param {Object} conta - Objeto contendo os dados da conta.
+ * @returns {Object} Resposta indicando sucesso ou erro.
+ */
+function adicionarContaAReceber(conta) {
+  Logger.log("Função adicionarContaAReceber iniciada.");
+  try {
+    const resposta = adicionarConta(conta, 'contas_a_receber');
+    Logger.log("Conta a receber adicionada com sucesso.");
+    return resposta;
+  } catch (error) {
+    Logger.log(`Erro na função adicionarContaAReceber: ${error.message}`);
+    throw error;
   }
 }
